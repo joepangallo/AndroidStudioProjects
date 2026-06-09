@@ -1,0 +1,169 @@
+package com.example.navdetaillist
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.clickable                // makes a row tappable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn          // scrolling list
+import androidx.compose.foundation.lazy.items               // iterate a List inside a LazyColumn
+import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+// Navigation 3 — modern, Compose-first navigation (single Activity, no Intents).
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.ui.NavDisplay
+import com.example.navdetaillist.ui.theme.NavDetailListTheme
+import kotlinx.serialization.Serializable
+
+// ===========================================================================
+// DATA
+// A tiny in-memory data source. In a real app this would come from a database
+// or network; here a hardcoded list is enough to demonstrate list -> detail.
+// ===========================================================================
+
+data class Item(val id: Int, val title: String, val blurb: String)
+
+private val sampleItems = listOf(
+    Item(1, "Mercury", "The smallest planet and the closest to the Sun."),
+    Item(2, "Venus", "The hottest planet, wrapped in thick clouds of acid."),
+    Item(3, "Earth", "The only planet known to support life — so far."),
+    Item(4, "Mars", "The red planet, a frequent target for rovers."),
+    Item(5, "Jupiter", "The largest planet, a gas giant with a great red spot."),
+)
+
+// Look an item up by its id. The Detail screen receives only the id and resolves
+// the full item here — the id is the small piece of data that travels in the key.
+private fun itemById(id: Int): Item = sampleItems.first { it.id == id }
+
+// ===========================================================================
+// NAVIGATION KEYS
+// Each screen is identified by a key. The key also carries that screen's arguments.
+// ListKey has none; DetailKey carries the id of the tapped item.
+// ===========================================================================
+
+@Serializable
+data object ListKey : NavKey                                // the list screen (no arguments)
+
+@Serializable
+data class DetailKey(val itemId: Int) : NavKey             // the detail screen; itemId = which item was tapped
+
+/**
+ * MainActivity — the app's single Activity. It hosts the Nav3 back stack and swaps
+ * between the list screen and the detail screen.
+ */
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            NavDetailListTheme {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    AppNavigation(modifier = Modifier.padding(innerPadding))
+                }
+            }
+        }
+    }
+}
+
+/**
+ * AppNavigation — owns the back stack and maps each key to its screen.
+ */
+@Composable
+fun AppNavigation(modifier: Modifier = Modifier) {
+    // Back stack starts on the list screen.
+    val backStack = rememberNavBackStack(ListKey)
+
+    NavDisplay(
+        backStack = backStack,
+        modifier = modifier,
+        onBack = { backStack.removeLastOrNull() },          // back = pop the top key
+        entryProvider = entryProvider {
+            entry<ListKey> {
+                ListScreen(
+                    items = sampleItems,
+                    // Tapping a row pushes a DetailKey carrying THAT item's id = navigate forward.
+                    onOpen = { id -> backStack.add(DetailKey(id)) }
+                )
+            }
+            entry<DetailKey> { key ->
+                // key.itemId is the argument; resolve it to the full item to display.
+                DetailScreen(
+                    item = itemById(key.itemId),
+                    onBack = { backStack.removeLastOrNull() }
+                )
+            }
+        }
+    )
+}
+
+/** List screen: a scrolling list of items; tapping one calls onOpen with its id. */
+@Composable
+fun ListScreen(
+    items: List<Item>,
+    onOpen: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    LazyColumn(modifier = modifier.fillMaxSize()) {
+        items(items) { item ->                              // draw one row per item
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onOpen(item.id) }          // whole row is tappable -> navigate
+                    .padding(16.dp)
+            ) {
+                Text(text = item.title, style = MaterialTheme.typography.titleMedium)
+                Text(text = item.blurb, style = MaterialTheme.typography.bodyMedium)
+            }
+            HorizontalDivider()                             // thin line between rows
+        }
+    }
+}
+
+/** Detail screen: shows the item resolved from the id in the key, plus a Back button. */
+@Composable
+fun DetailScreen(
+    item: Item,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
+        Text(text = item.title, style = MaterialTheme.typography.headlineSmall)
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = item.blurb, style = MaterialTheme.typography.bodyLarge)
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(onClick = onBack) {                          // pop back to the list
+            Text("Back to list")
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ListScreenPreview() {
+    NavDetailListTheme {
+        ListScreen(items = sampleItems, onOpen = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DetailScreenPreview() {
+    NavDetailListTheme {
+        DetailScreen(item = sampleItems.first(), onBack = {})
+    }
+}

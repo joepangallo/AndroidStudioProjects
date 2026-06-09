@@ -1,0 +1,32 @@
+# ---- Android / Gradle build outputs ----
+build/
+.gradle/
+.kotlin/
+captures/
+out/
+bin/
+gen/
+.externalNativeBuild/
+.cxx/
+
+# ---- Local / machine-specific config ----
+# local.properties contains the absolute SDK path; never commit it.
+local.properties
+*.iml
+.idea/
+
+# ---- Build artifacts ----
+*.apk
+*.aab
+*.ap_
+*.aar
+*.dex
+*.class
+
+# ---- Signing (safety) ----
+*.jks
+*.keystore
+
+# ---- Logs & OS cruft ----
+*.log
+.DS_Store

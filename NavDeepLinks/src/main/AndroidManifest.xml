@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- <application> holds app-wide settings (icon, label, theme, backup rules) and
+         declares every component. Android only knows an Activity exists if it is
+         declared here; an undeclared Activity will crash with ActivityNotFoundException. -->
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.NavDeepLinks">
+
+        <!-- MainActivity: the app's entry-point screen.
+             exported="true" is REQUIRED here because it is launched from outside the app
+             (by the Android launcher / home screen). Any activity with an intent-filter
+             that the system uses must be exported. -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.NavDeepLinks"
+            android:windowSoftInputMode="adjustResize">
+
+            <!-- ============================================================
+                 INTENT-FILTER #1 — LAUNCHER (unchanged from the base sample).
+                 This marks the activity as the app's normal launch screen:
+                   action MAIN      = this is the starting point of the app, and
+                   category LAUNCHER = show its icon in the device's app drawer.
+                 Together they tell Android "open this activity when the icon is
+                 tapped". intent.data is null for a launcher tap, so the app
+                 falls back to the Categories screen.
+                 ============================================================ -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- ============================================================
+                 INTENT-FILTER #2 — DEEP LINK (the whole point of this sample).
+                 This SECOND filter lets an OUTSIDE source open a specific screen
+                 directly via a URI like:  navdemo://planet/3
+
+                 Why each line is here:
+                   • action VIEW
+                       The standard "view this piece of content" action. Browsers,
+                       email apps, notifications, other apps, and the adb
+                       `am start -a android.intent.action.VIEW -d <uri>` command
+                       all fire VIEW. Without it, the system won't route the URI
+                       to us.
+                   • category DEFAULT
+                       REQUIRED for the activity to be a valid target of an
+                       *implicit* VIEW intent (one that names no component). The
+                       system silently skips any DEFAULT-less filter when matching
+                       implicit intents, so omitting this breaks deep linking.
+                   • category BROWSABLE
+                       Lets the link be opened from a WEB BROWSER / web context
+                       (e.g. tapping a navdemo:// link on a web page). Many deep
+                       links arrive this way, so it's conventional to include it.
+                   • data scheme="navdemo" host="planet"
+                       This is the URI we match: scheme://host == navdemo://planet.
+                       Anything after that (the /3 path) is the item id we parse
+                       in MainActivity (see parseItemId()). We invented the
+                       "navdemo" custom scheme so this demo owns it outright (a
+                       real app would usually use https:// App Links instead).
+
+                 TEST IT:
+                   adb shell am start -W -a android.intent.action.VIEW \
+                       -d "navdemo://planet/3" com.example.navdeeplinks
+                 ============================================================ -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!-- Matches navdemo://planet/...  (the trailing /<id> is parsed in code). -->
+                <data
+                    android:scheme="navdemo"
+                    android:host="planet" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
