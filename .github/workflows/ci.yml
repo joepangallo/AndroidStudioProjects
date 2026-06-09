@@ -1,92 +1,154 @@
-# Continuous Integration.
+# Continuous Integration — PATH-FILTERED.
 #
-# GitHub runs this automatically on every push to `main` and on every pull
-# request. There are TWO jobs, each fanned out over every project (one parallel
-# matrix job per project, fail-fast: false so one failure never hides the rest):
+# Instead of rebuilding all 18 projects on every push, a first job ("changes")
+# diffs what actually changed and emits a dynamic matrix of ONLY the affected
+# projects. The build + unit-test jobs then run that smaller matrix. Rules:
+#   • a file under <Project>/ changed   -> build just that project
+#   • the workflow file itself changed  -> build everything (the rules changed)
+#   • only root files changed (README…) -> build nothing
+#   • manual run / new branch / odd diff -> build everything (safe default)
 #
-#   • build      — ./gradlew assembleDebug      (full debug APK: Kotlin + resources
-#                                                + manifest merge + dex + packaging)
-#   • unit-test  — ./gradlew testDebugUnitTest  (the JVM unit tests under src/test)
-#
-# assembleDebug is a strict upgrade over a plain compile check: it catches
-# resource and manifest errors that compiling Kotlin alone would miss.
+# A final "CI success" job aggregates the results into ONE stable status check,
+# which stays green even when most projects are correctly skipped.
 name: CI
 
 on:
   push:
     branches: [ main ]
   pull_request:
-  workflow_dispatch:        # also lets you trigger it by hand from the Actions tab
+  workflow_dispatch:
 
 permissions:
   contents: read
 
-# If you push twice quickly, cancel the older in-progress run for the same ref.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   # ===========================================================================
-  # JOB 1 — build a full debug APK for every project.
+  # JOB 0 — figure out which projects changed and emit a matrix for the rest.
+  # ===========================================================================
+  changes:
+    name: detect changed projects
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.detect.outputs.matrix }}   # {"include":[{name,dir}...]}
+      any: ${{ steps.detect.outputs.any }}          # "true" if at least one project must build
+    steps:
+      - name: Checkout (full history, needed to diff)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed projects
+        id: detect
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}                 # push: previous tip
+          BASE_SHA: ${{ github.event.pull_request.base.sha }} # PR: base branch tip
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          # name|watch-folder|build-dir . watch-folder is what we diff against;
+          # build-dir is where gradlew lives (NavListDetail builds from app/).
+          projects=(
+            "SingleActivity|SingleActivity|SingleActivity"
+            "Intent|Intent|Intent"
+            "NavDetailList|NavDetailList|NavDetailList"
+            "NavListDetail|NavListDetail|NavListDetail/app"
+            "NavThreeScreen|NavThreeScreen|NavThreeScreen"
+            "NavFourScreen|NavFourScreen|NavFourScreen"
+            "NavDeepLinks|NavDeepLinks|NavDeepLinks"
+            "NavBottomTabs|NavBottomTabs|NavBottomTabs"
+            "NavNestedGraphs|NavNestedGraphs|NavNestedGraphs"
+            "NavViewModelState|NavViewModelState|NavViewModelState"
+            "NavTransitions|NavTransitions|NavTransitions"
+            "NavDataLayer|NavDataLayer|NavDataLayer"
+            "ComposeModernUI|ComposeModernUI|ComposeModernUI"
+            "ComposeLists|ComposeLists|ComposeLists"
+            "NetworkParsing|NetworkParsing|NetworkParsing"
+            "MvvmState|MvvmState|MvvmState"
+            "RoomAndPreferences|RoomAndPreferences|RoomAndPreferences"
+            "AppReleaseBasics|AppReleaseBasics|AppReleaseBasics"
+          )
+
+          all=false
+          changed=""
+
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            all=true
+            echo "Manual run -> building all projects."
+          elif [ "$EVENT" = "pull_request" ]; then
+            if [ -z "${BASE_SHA:-}" ] || ! git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
+              all=true; echo "PR base unavailable -> building all."
+            else
+              changed="$(git diff --name-only "${BASE_SHA}...${HEAD_SHA}")"
+            fi
+          else
+            if [ -z "${BEFORE:-}" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "${BEFORE}^{commit}" 2>/dev/null; then
+              all=true; echo "No valid before-SHA (new branch/force-push) -> building all."
+            else
+              changed="$(git diff --name-only "${BEFORE}" "${HEAD_SHA}")"
+            fi
+          fi
+
+          if [ "$all" = false ]; then
+            echo "Changed files:"; printf '%s\n' "$changed" | sed 's/^/  /'
+            # A change to the workflow re-validates every project.
+            if printf '%s\n' "$changed" | grep -qE '^\.github/workflows/'; then
+              all=true; echo "Workflow changed -> building all projects."
+            fi
+          fi
+
+          matrix='{"include":[]}'
+          for entry in "${projects[@]}"; do
+            IFS='|' read -r name watch dir <<< "$entry"
+            if [ "$all" = true ] || printf '%s\n' "$changed" | grep -qE "^${watch}/"; then
+              matrix="$(printf '%s' "$matrix" | jq -c --arg n "$name" --arg d "$dir" '.include += [{name:$n,dir:$d}]')"
+            fi
+          done
+
+          count="$(printf '%s' "$matrix" | jq '.include | length')"
+          echo "Projects to build ($count):"
+          printf '%s' "$matrix" | jq -r '.include[].name' | sed 's/^/  • /'
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          if [ "$count" -gt 0 ]; then echo "any=true" >> "$GITHUB_OUTPUT"; else echo "any=false" >> "$GITHUB_OUTPUT"; fi
+
+  # ===========================================================================
+  # JOB 1 — build a full debug APK for each CHANGED project.
   # ===========================================================================
   build:
     name: build ${{ matrix.name }}
+    needs: changes
+    if: needs.changes.outputs.any == 'true'
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false      # build every project even if one fails, so you see all results
-      matrix:
-        include:
-          # Most projects build from their own folder...
-          - { name: SingleActivity,    dir: SingleActivity }
-          - { name: Intent,            dir: Intent }
-          - { name: NavDetailList,     dir: NavDetailList }
-          # ...NavListDetail's buildable project lives in its app/ subfolder
-          # (its outer folder has an incomplete version catalog).
-          - { name: NavListDetail,     dir: NavListDetail/app }
-          - { name: NavThreeScreen,    dir: NavThreeScreen }
-          - { name: NavFourScreen,     dir: NavFourScreen }
-          - { name: NavDeepLinks,      dir: NavDeepLinks }
-          - { name: NavBottomTabs,     dir: NavBottomTabs }
-          - { name: NavNestedGraphs,   dir: NavNestedGraphs }
-          - { name: NavViewModelState, dir: NavViewModelState }
-          - { name: NavTransitions,    dir: NavTransitions }
-          - { name: NavDataLayer,      dir: NavDataLayer }
-          # --- Android concept demos (notes domain) ---
-          - { name: ComposeModernUI,    dir: ComposeModernUI }
-          - { name: ComposeLists,       dir: ComposeLists }
-          - { name: NetworkParsing,     dir: NetworkParsing }
-          - { name: MvvmState,          dir: MvvmState }
-          - { name: RoomAndPreferences, dir: RoomAndPreferences }
-          - { name: AppReleaseBasics,   dir: AppReleaseBasics }
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.changes.outputs.matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # JDK 21 — every project's gradle-daemon-jvm.properties pins toolchainVersion=21.
-      - name: Set up JDK 21
+      - name: Set up JDK 21          # every project pins toolchainVersion=21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
 
-      # Android SDK / command-line tools so AGP can fetch the compileSdk platform.
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      # Gradle with dependency/wrapper caching.
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # Build the debug APK. assembleDebug also compiles Kotlin, so this fully
-      # supersedes the old compileDebugKotlin check.
-      - name: Assemble debug APK
+      - name: Assemble debug APK     # also compiles Kotlin + merges resources/manifest
         working-directory: ${{ matrix.dir }}
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug --console=plain --stacktrace
 
-      # Keep the built APK as a downloadable artifact on the run's summary page.
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
@@ -95,35 +157,16 @@ jobs:
           if-no-files-found: warn
 
   # ===========================================================================
-  # JOB 2 — run the JVM unit tests (src/test) for every project.
-  # Projects without any test sources simply pass (the task is a no-op).
+  # JOB 2 — run the JVM unit tests for each CHANGED project.
   # ===========================================================================
   unit-test:
     name: test ${{ matrix.name }}
+    needs: changes
+    if: needs.changes.outputs.any == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - { name: SingleActivity,    dir: SingleActivity }
-          - { name: Intent,            dir: Intent }
-          - { name: NavDetailList,     dir: NavDetailList }
-          - { name: NavListDetail,     dir: NavListDetail/app }
-          - { name: NavThreeScreen,    dir: NavThreeScreen }
-          - { name: NavFourScreen,     dir: NavFourScreen }
-          - { name: NavDeepLinks,      dir: NavDeepLinks }
-          - { name: NavBottomTabs,     dir: NavBottomTabs }
-          - { name: NavNestedGraphs,   dir: NavNestedGraphs }
-          - { name: NavViewModelState, dir: NavViewModelState }
-          - { name: NavTransitions,    dir: NavTransitions }
-          - { name: NavDataLayer,      dir: NavDataLayer }
-          # --- Android concept demos (notes domain) ---
-          - { name: ComposeModernUI,    dir: ComposeModernUI }
-          - { name: ComposeLists,       dir: ComposeLists }
-          - { name: NetworkParsing,     dir: NetworkParsing }
-          - { name: MvvmState,          dir: MvvmState }
-          - { name: RoomAndPreferences, dir: RoomAndPreferences }
-          - { name: AppReleaseBasics,   dir: AppReleaseBasics }
+      matrix: ${{ fromJSON(needs.changes.outputs.matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -146,8 +189,6 @@ jobs:
           chmod +x gradlew
           ./gradlew testDebugUnitTest --console=plain --stacktrace
 
-      # Always publish the HTML test report (even when a test fails) so you can
-      # open it from the run summary to see exactly what broke.
       - name: Upload test report
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -155,3 +196,24 @@ jobs:
           name: ${{ matrix.name }}-test-report
           path: ${{ matrix.dir }}/**/build/reports/tests/
           if-no-files-found: ignore
+
+  # ===========================================================================
+  # JOB 3 — single stable status: green unless a triggered job actually failed.
+  # Skipped build/test jobs (no relevant changes) count as success.
+  # ===========================================================================
+  ci-success:
+    name: CI success
+    needs: [ changes, build, unit-test ]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check results
+        run: |
+          echo "changes:   ${{ needs.changes.result }}"
+          echo "build:     ${{ needs.build.result }}"
+          echo "unit-test: ${{ needs.unit-test.result }}"
+          if [ "${{ contains(needs.*.result, 'failure') }}" = "true" ] || [ "${{ contains(needs.*.result, 'cancelled') }}" = "true" ]; then
+            echo "::error::A required job failed or was cancelled."
+            exit 1
+          fi
+          echo "All triggered jobs passed (skipped projects are OK)."
