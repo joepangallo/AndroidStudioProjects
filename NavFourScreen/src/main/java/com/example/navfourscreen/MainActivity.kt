@@ -239,8 +239,23 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         // top key returns to the previous screen; removeLastOrNull is a no-op (and
         // safe) if the stack is somehow already empty.
         onBack = { backStack.removeLastOrNull() },          // back = pop the top key
-        // entryProvider is a DSL: one `entry<KeyType> { ... }` block per screen.
-        // Nav3 picks the block whose key type matches the current top key.
+        // entryProvider is a DSL (a small "language" for one job): it builds the
+        // map of "which key type -> which screen". You call entry<...> once per
+        // screen inside the { } block, and Nav3 runs the block whose key type
+        // matches the key currently on top of the back stack.
+        //
+        // How to read ONE line, e.g.  entry<ItemsKey> { key -> ItemsScreen(...) } :
+        //   • entry           — a Nav3 builder function (from
+        //                       androidx.navigation3.runtime) that registers ONE
+        //                       screen for ONE key type.
+        //   • <ItemsKey>      — a GENERIC TYPE ARGUMENT, in angle brackets (a TYPE
+        //                       slot, not a value in parentheses): the key type this
+        //                       block handles. Nav3 matches it against the top key.
+        //   • { key -> ... }  — the @Composable CONTENT shown while that key is on
+        //                       top. The lambda is handed the key instance, so a
+        //                       data-class key can read its arguments (key.categoryId).
+        //                       CategoriesKey is a data OBJECT (it carries no data),
+        //                       so its block below omits the `key ->` parameter.
         entryProvider = entryProvider {
             // LEVEL 1 — when CategoriesKey is on top, show the list of categories.
             entry<CategoriesKey> {

@@ -84,22 +84,22 @@
     {
       "title": "entryProvider maps each key type to a screen",
       "file": "Intent/app/src/main/java/com/example/intent/MainActivity.kt",
-      "start": 70,
-      "end": 82,
+      "start": 87,
+      "end": 99,
       "explain": "'entryProvider { ... }' is the lookup table. 'entry<HomeKey>' draws HomeScreen and passes 'onOpenDetail = { backStack.add(DetailKey('Hello from Home!')) }' to push a new key (navigate forward). 'entry<DetailKey> { key -> ... }' receives the key and reads 'key.message' directly, replacing the old getStringExtra lookup."
     },
     {
       "title": "HomeScreen is a plain Composable with a callback",
       "file": "Intent/app/src/main/java/com/example/intent/MainActivity.kt",
-      "start": 88,
-      "end": 96,
+      "start": 105,
+      "end": 113,
       "explain": "HomeScreen takes an 'onOpenDetail: () -> Unit' callback rather than knowing anything about navigation. Its Button calls 'onOpenDetail' on tap. Because the navigation logic lives up in AppNavigation, this screen stays reusable and previewable in isolation."
     },
     {
       "title": "DetailScreen renders the key's argument",
       "file": "Intent/app/src/main/java/com/example/intent/MainActivity.kt",
-      "start": 99,
-      "end": 107,
+      "start": 116,
+      "end": 124,
       "explain": "DetailScreen takes a 'message: String' (the value that traveled inside DetailKey) plus an 'onBack: () -> Unit' callback. It just shows 'Text(text = message)' and a Back button. The screen never reaches into an Intent; it only knows about the plain data handed to it."
     }
   ],

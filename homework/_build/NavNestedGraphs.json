@@ -6,33 +6,114 @@
   "domain": "planets",
   "estTime": "15-25 min",
   "screens": [
-    {"name": "WelcomeScreen", "role": "Graph A step 1: greets the user and offers a single 'Next' button to advance within onboarding."},
-    {"name": "ChooseFavoriteScreen", "role": "Graph A step 2: a tappable list of all planets where you select one favorite (local UI state) before 'Continue' becomes enabled."},
-    {"name": "DoneScreen", "role": "Graph A step 3: confirms onboarding is done and offers 'Get started', the hand-off that pops the whole sub-flow."},
-    {"name": "CategoriesScreen", "role": "Graph B step 1 (main app start): a list of categories; tapping one opens its items."},
-    {"name": "ItemsScreen", "role": "Graph B step 2: a header for the chosen category plus a scrolling list of its planets; tapping one opens detail."},
-    {"name": "DetailScreen", "role": "Graph B step 3: shows one planet's title and blurb resolved from the id in its DetailKey."}
+    {
+      "name": "WelcomeScreen",
+      "role": "Graph A step 1: greets the user and offers a single 'Next' button to advance within onboarding."
+    },
+    {
+      "name": "ChooseFavoriteScreen",
+      "role": "Graph A step 2: a tappable list of all planets where you select one favorite (local UI state) before 'Continue' becomes enabled."
+    },
+    {
+      "name": "DoneScreen",
+      "role": "Graph A step 3: confirms onboarding is done and offers 'Get started', the hand-off that pops the whole sub-flow."
+    },
+    {
+      "name": "CategoriesScreen",
+      "role": "Graph B step 1 (main app start): a list of categories; tapping one opens its items."
+    },
+    {
+      "name": "ItemsScreen",
+      "role": "Graph B step 2: a header for the chosen category plus a scrolling list of its planets; tapping one opens detail."
+    },
+    {
+      "name": "DetailScreen",
+      "role": "Graph B step 3: shows one planet's title and blurb resolved from the id in its DetailKey."
+    }
   ],
   "concepts": [
-    {"term": "Nested graph / sub-flow", "plain": "A self-contained multi-step flow (here onboarding) that runs as one cohesive unit and then hands off to the main app. The defining trait is that completing it pops the ENTIRE flow off the stack, not one screen at a time."},
-    {"term": "Modeling a graph as a key Set", "plain": "Since Nav3's back stack is a flat list, the 'graph membership' is just 'onboardingKeys = setOf(WelcomeKey, ChooseFavoriteKey, DoneKey)'. That Set IS the definition of which destinations belong to the onboarding nested graph."},
-    {"term": "Back-stack surgery", "plain": "Completing the sub-flow is done by directly editing the list: 'backStack.removeAll { it in onboardingKeys }' deletes every onboarding key, then 'backStack.add(CategoriesKey)' enters the main app. This is the Nav3 stand-in for Nav2's 'popUpTo(graph) { inclusive = true }'."},
-    {"term": "NavKey + data object vs data class", "plain": "Every destination implements NavKey. Argument-free steps (WelcomeKey, CategoriesKey) are singleton 'data object' keys; steps that carry data (ItemsKey(categoryId), DetailKey(itemId)) are 'data class' keys that bundle the destination AND its arguments together."},
-    {"term": "rememberNavBackStack seeded in Graph A", "plain": "'val backStack = rememberNavBackStack(WelcomeKey)' creates and remembers the stack seeded with a Welcome key, so the app deliberately STARTS inside the onboarding sub-flow rather than the main app."},
-    {"term": "entryProvider grouped by graph", "plain": "The 'entryProvider { entry<KeyType> { ... } }' DSL maps each key type to a screen. Here the entry blocks are split into two commented sections, Graph A and Graph B, so the 'two graphs sharing one flat stack' idea is visible in code."},
-    {"term": "onBack as a flat pop", "plain": "NavDisplay's 'onBack = { backStack.removeLastOrNull() }' just removes the top key. Inside onboarding it walks Done -> Choose -> Welcome; in the main app it walks Detail -> Items -> Categories; because finishOnboarding already deleted Graph A, Back can never cross from Graph B into Graph A."},
-    {"term": "Dumb screens, id-only keys", "plain": "Screens are 'dumb' composables that only render and report taps via callbacks; nav keys carry only an id (e.g. DetailKey(itemId)) and the screen resolves the full object via 'itemById(id)', keeping each key tiny and serializable."}
+    {
+      "term": "Nested graph / sub-flow",
+      "plain": "A self-contained multi-step flow (here onboarding) that runs as one cohesive unit and then hands off to the main app. The defining trait is that completing it pops the ENTIRE flow off the stack, not one screen at a time."
+    },
+    {
+      "term": "Modeling a graph as a key Set",
+      "plain": "Since Nav3's back stack is a flat list, the 'graph membership' is just 'onboardingKeys = setOf(WelcomeKey, ChooseFavoriteKey, DoneKey)'. That Set IS the definition of which destinations belong to the onboarding nested graph."
+    },
+    {
+      "term": "Back-stack surgery",
+      "plain": "Completing the sub-flow is done by directly editing the list: 'backStack.removeAll { it in onboardingKeys }' deletes every onboarding key, then 'backStack.add(CategoriesKey)' enters the main app. This is the Nav3 stand-in for Nav2's 'popUpTo(graph) { inclusive = true }'."
+    },
+    {
+      "term": "NavKey + data object vs data class",
+      "plain": "Every destination implements NavKey. Argument-free steps (WelcomeKey, CategoriesKey) are singleton 'data object' keys; steps that carry data (ItemsKey(categoryId), DetailKey(itemId)) are 'data class' keys that bundle the destination AND its arguments together."
+    },
+    {
+      "term": "rememberNavBackStack seeded in Graph A",
+      "plain": "'val backStack = rememberNavBackStack(WelcomeKey)' creates and remembers the stack seeded with a Welcome key, so the app deliberately STARTS inside the onboarding sub-flow rather than the main app."
+    },
+    {
+      "term": "entryProvider grouped by graph",
+      "plain": "The 'entryProvider { entry<KeyType> { ... } }' DSL maps each key type to a screen. Here the entry blocks are split into two commented sections, Graph A and Graph B, so the 'two graphs sharing one flat stack' idea is visible in code."
+    },
+    {
+      "term": "onBack as a flat pop",
+      "plain": "NavDisplay's 'onBack = { backStack.removeLastOrNull() }' just removes the top key. Inside onboarding it walks Done -> Choose -> Welcome; in the main app it walks Detail -> Items -> Categories; because finishOnboarding already deleted Graph A, Back can never cross from Graph B into Graph A."
+    },
+    {
+      "term": "Dumb screens, id-only keys",
+      "plain": "Screens are 'dumb' composables that only render and report taps via callbacks; nav keys carry only an id (e.g. DetailKey(itemId)) and the screen resolves the full object via 'itemById(id)', keeping each key tiny and serializable."
+    }
   ],
   "files": [
-    {"path": "NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt", "role": "The entire app: sample planet data, navigation keys grouped into Graph A (onboarding) and Graph B (main), the MainActivity, AppNavigation with the finishOnboarding back-stack surgery and grouped entryProvider, all six screen composables, and previews."}
+    {
+      "path": "NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt",
+      "role": "The entire app: sample planet data, navigation keys grouped into Graph A (onboarding) and Graph B (main), the MainActivity, AppNavigation with the finishOnboarding back-stack surgery and grouped entryProvider, all six screen composables, and previews."
+    }
   ],
   "highlights": [
-    {"title": "Keys grouped into two graphs, with the onboarding Set", "file": "NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt", "start": 210, "end": 239, "explain": "Graph A's three steps are argument-free 'data object' keys (WelcomeKey, ChooseFavoriteKey, DoneKey); Graph B mixes a 'data object' CategoriesKey with 'data class' keys ItemsKey(categoryId) and DetailKey(itemId) that carry arguments. The final line, 'onboardingKeys = setOf(WelcomeKey, ChooseFavoriteKey, DoneKey)', is the lightweight definition of 'which destinations are in the nested graph' that finishOnboarding later relies on. This grouping is the whole nested-graph model, since Nav3 has no graph object."},
-    {"title": "Seeding the back stack inside the onboarding sub-flow", "file": "NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt", "start": 282, "end": 293, "explain": "'rememberNavBackStack(WelcomeKey)' creates and remembers the back stack seeded with WelcomeKey, so the app deliberately opens INSIDE Graph A (onboarding) rather than the main app. Because NavBackStack is a MutableList<NavKey>, the code gets add(), removeLastOrNull(), and removeAll{} for free, and those list operations are literally how navigation happens in Nav3."},
-    {"title": "finishOnboarding: pop the whole sub-flow as a unit", "file": "NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt", "start": 327, "end": 331, "explain": "This is the single most important function in the lesson. 'backStack.removeAll { it in onboardingKeys }' deletes EVERY onboarding key at once, then 'backStack.add(CategoriesKey)' enters Graph B at its start. After it runs the stack is exactly [CategoriesKey], so Back exits the app and can never return into onboarding. It is the hand-written equivalent of Nav2's 'popUpTo(onboarding_graph) { inclusive = true }'."},
-    {"title": "NavDisplay with a flat onBack and a grouped entryProvider", "file": "NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt", "start": 335, "end": 349, "explain": "NavDisplay renders whatever key is on top of backStack. 'onBack = { backStack.removeLastOrNull() }' is a single flat pop that serves BOTH graphs' internal Back, and removeLastOrNull is a safe no-op on an empty stack. The entryProvider DSL that follows is split into two labelled sections so that two graphs sharing one flat stack stays visible in the code."},
-    {"title": "Graph A entries: 'Get started' wires to finishOnboarding", "file": "NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt", "start": 360, "end": 385, "explain": "Each onboarding step's entry<> block pushes the NEXT step ('add(ChooseFavoriteKey)', 'add(DoneKey)') to walk forward within Graph A, and its in-flow Back pops one step. The key teaching moment is DoneScreen's 'onGetStarted = finishOnboarding': the only way to LEAVE the sub-flow is the unit pop, never a one-screen-at-a-time slide into Graph B."},
-    {"title": "Graph B entries: id-carrying keys resolved to objects", "file": "NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt", "start": 396, "end": 423, "explain": "The drill-down pushes 'ItemsKey(categoryId)' and 'DetailKey(itemId)', then each entry block reads the id off the key ('key.categoryId', 'key.itemId') and resolves the full object via 'categoryById' / 'itemsInCategory' / 'itemById'. Passing only an id keeps every key tiny and serializable, and because Graph A was already popped, the first Back here exits the app instead of re-entering onboarding."}
+    {
+      "title": "Keys grouped into two graphs, with the onboarding Set",
+      "file": "NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt",
+      "start": 210,
+      "end": 239,
+      "explain": "Graph A's three steps are argument-free 'data object' keys (WelcomeKey, ChooseFavoriteKey, DoneKey); Graph B mixes a 'data object' CategoriesKey with 'data class' keys ItemsKey(categoryId) and DetailKey(itemId) that carry arguments. The final line, 'onboardingKeys = setOf(WelcomeKey, ChooseFavoriteKey, DoneKey)', is the lightweight definition of 'which destinations are in the nested graph' that finishOnboarding later relies on. This grouping is the whole nested-graph model, since Nav3 has no graph object."
+    },
+    {
+      "title": "Seeding the back stack inside the onboarding sub-flow",
+      "file": "NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt",
+      "start": 282,
+      "end": 293,
+      "explain": "'rememberNavBackStack(WelcomeKey)' creates and remembers the back stack seeded with WelcomeKey, so the app deliberately opens INSIDE Graph A (onboarding) rather than the main app. Because NavBackStack is a MutableList<NavKey>, the code gets add(), removeLastOrNull(), and removeAll{} for free, and those list operations are literally how navigation happens in Nav3."
+    },
+    {
+      "title": "finishOnboarding: pop the whole sub-flow as a unit",
+      "file": "NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt",
+      "start": 327,
+      "end": 331,
+      "explain": "This is the single most important function in the lesson. 'backStack.removeAll { it in onboardingKeys }' deletes EVERY onboarding key at once, then 'backStack.add(CategoriesKey)' enters Graph B at its start. After it runs the stack is exactly [CategoriesKey], so Back exits the app and can never return into onboarding. It is the hand-written equivalent of Nav2's 'popUpTo(onboarding_graph) { inclusive = true }'."
+    },
+    {
+      "title": "NavDisplay with a flat onBack and a grouped entryProvider",
+      "file": "NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt",
+      "start": 335,
+      "end": 366,
+      "explain": "NavDisplay renders whatever key is on top of backStack. 'onBack = { backStack.removeLastOrNull() }' is a single flat pop that serves BOTH graphs' internal Back, and removeLastOrNull is a safe no-op on an empty stack. The entryProvider DSL that follows is split into two labelled sections so that two graphs sharing one flat stack stays visible in the code."
+    },
+    {
+      "title": "Graph A entries: 'Get started' wires to finishOnboarding",
+      "file": "NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt",
+      "start": 377,
+      "end": 402,
+      "explain": "Each onboarding step's entry<> block pushes the NEXT step ('add(ChooseFavoriteKey)', 'add(DoneKey)') to walk forward within Graph A, and its in-flow Back pops one step. The key teaching moment is DoneScreen's 'onGetStarted = finishOnboarding': the only way to LEAVE the sub-flow is the unit pop, never a one-screen-at-a-time slide into Graph B."
+    },
+    {
+      "title": "Graph B entries: id-carrying keys resolved to objects",
+      "file": "NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt",
+      "start": 413,
+      "end": 440,
+      "explain": "The drill-down pushes 'ItemsKey(categoryId)' and 'DetailKey(itemId)', then each entry block reads the id off the key ('key.categoryId', 'key.itemId') and resolves the full object via 'categoryById' / 'itemsInCategory' / 'itemById'. Passing only an id keeps every key tiny and serializable, and because Graph A was already popped, the first Back here exits the app instead of re-entering onboarding."
+    }
   ],
   "newVsPrev": "NavFourScreen taught a single flat back stack of four screens with simple forward-push / pop navigation. NavNestedGraphs keeps that flat Nav3 back stack but layers a NESTED-GRAPH model on top: it groups keys into two graphs (an onboarding sub-flow A and a main app B), seeds the stack inside Graph A, and adds the finishOnboarding back-stack surgery ('removeAll { it in onboardingKeys }' + 'add(CategoriesKey)') that pops the ENTIRE sub-flow as one unit so Back never crosses back into onboarding. It also splits the entryProvider into two clearly-commented graph sections.",
   "tryThis": [

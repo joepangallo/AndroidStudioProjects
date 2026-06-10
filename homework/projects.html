@@ -560,7 +560,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">entryProvider maps each key type to a screen</span>
-        <span class="codemeta"><code title="Intent/app/src/main/java/com/example/intent/MainActivity.kt">MainActivity.kt</code> · lines 70–82</span>
+        <span class="codemeta"><code title="Intent/app/src/main/java/com/example/intent/MainActivity.kt">MainActivity.kt</code> · lines 87–99</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>        entryProvider = entryProvider {                   <span class="c">// Begin the map of key type -&gt; screen UI.</span>
@@ -581,7 +581,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">HomeScreen is a plain Composable with a callback</span>
-        <span class="codemeta"><code title="Intent/app/src/main/java/com/example/intent/MainActivity.kt">MainActivity.kt</code> · lines 88–96</span>
+        <span class="codemeta"><code title="Intent/app/src/main/java/com/example/intent/MainActivity.kt">MainActivity.kt</code> · lines 105–113</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="a">@Composable</span>                                               <span class="c">// Compose UI function.</span>
@@ -598,7 +598,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">DetailScreen renders the key's argument</span>
-        <span class="codemeta"><code title="Intent/app/src/main/java/com/example/intent/MainActivity.kt">MainActivity.kt</code> · lines 99–107</span>
+        <span class="codemeta"><code title="Intent/app/src/main/java/com/example/intent/MainActivity.kt">MainActivity.kt</code> · lines 116–124</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="a">@Composable</span>                                               <span class="c">// Compose UI function.</span>
@@ -695,7 +695,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">The back stack and NavDisplay wiring</span>
-        <span class="codemeta"><code title="NavDetailList/app/src/main/java/com/example/navdetaillist/MainActivity.kt">MainActivity.kt</code> · lines 87–112</span>
+        <span class="codemeta"><code title="NavDetailList/app/src/main/java/com/example/navdetaillist/MainActivity.kt">MainActivity.kt</code> · lines 87–129</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="k">fun</span> <span class="t">AppNavigation</span>(modifier: <span class="t">Modifier</span> = <span class="t">Modifier</span>) {
@@ -706,6 +706,23 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
         backStack = backStack,
         modifier = modifier,
         onBack = { backStack.removeLastOrNull() },          <span class="c">// back = pop the top key</span>
+        <span class="c">// entryProvider is a DSL (a small "language" for one job): it builds the</span>
+        <span class="c">// map of "which key type -&gt; which screen". You call entry&lt;...&gt; once per</span>
+        <span class="c">// screen inside the { } block, and Nav3 runs the block whose key type</span>
+        <span class="c">// matches the key currently on top of the back stack.</span>
+        <span class="c">//</span>
+        <span class="c">// How to read one  entry&lt;KeyType&gt; { key -&gt; SomeScreen(...) }  line:</span>
+        <span class="c">//   • entry          — a Nav3 builder function (from</span>
+        <span class="c">//                      androidx.navigation3.runtime) that registers ONE</span>
+        <span class="c">//                      screen for ONE key type.</span>
+        <span class="c">//   • &lt;KeyType&gt;      — a GENERIC TYPE ARGUMENT, in angle brackets (a TYPE</span>
+        <span class="c">//                      slot, not a value in parentheses): the key type this</span>
+        <span class="c">//                      block handles. Nav3 matches it against the top key.</span>
+        <span class="c">//   • { key -&gt; ... } — the @Composable CONTENT shown while that key is on</span>
+        <span class="c">//                      top. The lambda is handed the key instance, so a</span>
+        <span class="c">//                      data-class key can read its arguments (e.g. key.itemId).</span>
+        <span class="c">//                      A data-OBJECT key carries no data, so its block can</span>
+        <span class="c">//                      omit the `key -&gt;` parameter.</span>
         entryProvider = entryProvider {
             entry&lt;<span class="t">ListKey</span>&gt; {
                 <span class="t">ListScreen</span>(
@@ -729,7 +746,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">A tappable list that triggers navigation</span>
-        <span class="codemeta"><code title="NavDetailList/app/src/main/java/com/example/navdetaillist/MainActivity.kt">MainActivity.kt</code> · lines 115–135</span>
+        <span class="codemeta"><code title="NavDetailList/app/src/main/java/com/example/navdetaillist/MainActivity.kt">MainActivity.kt</code> · lines 132–152</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="a">@Composable</span>
@@ -758,7 +775,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">The detail screen with a back action</span>
-        <span class="codemeta"><code title="NavDetailList/app/src/main/java/com/example/navdetaillist/MainActivity.kt">MainActivity.kt</code> · lines 138–153</span>
+        <span class="codemeta"><code title="NavDetailList/app/src/main/java/com/example/navdetaillist/MainActivity.kt">MainActivity.kt</code> · lines 155–170</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="a">@Composable</span>
@@ -889,7 +906,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">NavDisplay, onBack, and the entryProvider</span>
-        <span class="codemeta"><code title="NavListDetail/app/src/main/java/com/example/navlistdetail/MainActivity.kt">MainActivity.kt</code> · lines 176–207</span>
+        <span class="codemeta"><code title="NavListDetail/app/src/main/java/com/example/navlistdetail/MainActivity.kt">MainActivity.kt</code> · lines 176–224</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>    <span class="t">NavDisplay</span>(
@@ -901,6 +918,23 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
         onBack = { backStack.removeLastOrNull() },          <span class="c">// back = pop the top key</span>
         <span class="c">// entryProvider is a DSL: one `entry&lt;KeyType&gt; { ... }` block per screen.</span>
         <span class="c">// Nav3 picks the block whose key type matches the current top key.</span>
+        <span class="c">// entryProvider is a DSL (a small "language" for one job): it builds the</span>
+        <span class="c">// map of "which key type -&gt; which screen". You call entry&lt;...&gt; once per</span>
+        <span class="c">// screen inside the { } block, and Nav3 runs the block whose key type</span>
+        <span class="c">// matches the key currently on top of the back stack.</span>
+        <span class="c">//</span>
+        <span class="c">// How to read one  entry&lt;KeyType&gt; { key -&gt; SomeScreen(...) }  line:</span>
+        <span class="c">//   • entry          — a Nav3 builder function (from</span>
+        <span class="c">//                      androidx.navigation3.runtime) that registers ONE</span>
+        <span class="c">//                      screen for ONE key type.</span>
+        <span class="c">//   • &lt;KeyType&gt;      — a GENERIC TYPE ARGUMENT, in angle brackets (a TYPE</span>
+        <span class="c">//                      slot, not a value in parentheses): the key type this</span>
+        <span class="c">//                      block handles. Nav3 matches it against the top key.</span>
+        <span class="c">//   • { key -&gt; ... } — the @Composable CONTENT shown while that key is on</span>
+        <span class="c">//                      top. The lambda is handed the key instance, so a</span>
+        <span class="c">//                      data-class key can read its arguments (e.g. key.itemId).</span>
+        <span class="c">//                      A data-OBJECT key carries no data, so its block can</span>
+        <span class="c">//                      omit the `key -&gt;` parameter.</span>
         entryProvider = entryProvider {
             <span class="c">// When ListKey is on top, show the list of all items.</span>
             entry&lt;<span class="t">ListKey</span>&gt; {
@@ -929,7 +963,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">The stateless list screen</span>
-        <span class="codemeta"><code title="NavListDetail/app/src/main/java/com/example/navlistdetail/MainActivity.kt">MainActivity.kt</code> · lines 221–248</span>
+        <span class="codemeta"><code title="NavListDetail/app/src/main/java/com/example/navlistdetail/MainActivity.kt">MainActivity.kt</code> · lines 238–265</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="a">@Composable</span>
@@ -1066,7 +1100,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">NavDisplay + entryProvider: the heart of Nav3</span>
-        <span class="codemeta"><code title="NavThreeScreen/src/main/java/com/example/navthreescreen/MainActivity.kt">MainActivity.kt</code> · lines 215–258</span>
+        <span class="codemeta"><code title="NavThreeScreen/src/main/java/com/example/navthreescreen/MainActivity.kt">MainActivity.kt</code> · lines 215–275</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>    <span class="t">NavDisplay</span>(
@@ -1078,6 +1112,23 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
         onBack = { backStack.removeLastOrNull() },          <span class="c">// back = pop the top key</span>
         <span class="c">// entryProvider is a DSL: one `entry&lt;KeyType&gt; { ... }` block per screen.</span>
         <span class="c">// Nav3 picks the block whose key type matches the current top key.</span>
+        <span class="c">// entryProvider is a DSL (a small "language" for one job): it builds the</span>
+        <span class="c">// map of "which key type -&gt; which screen". You call entry&lt;...&gt; once per</span>
+        <span class="c">// screen inside the { } block, and Nav3 runs the block whose key type</span>
+        <span class="c">// matches the key currently on top of the back stack.</span>
+        <span class="c">//</span>
+        <span class="c">// How to read one  entry&lt;KeyType&gt; { key -&gt; SomeScreen(...) }  line:</span>
+        <span class="c">//   • entry          — a Nav3 builder function (from</span>
+        <span class="c">//                      androidx.navigation3.runtime) that registers ONE</span>
+        <span class="c">//                      screen for ONE key type.</span>
+        <span class="c">//   • &lt;KeyType&gt;      — a GENERIC TYPE ARGUMENT, in angle brackets (a TYPE</span>
+        <span class="c">//                      slot, not a value in parentheses): the key type this</span>
+        <span class="c">//                      block handles. Nav3 matches it against the top key.</span>
+        <span class="c">//   • { key -&gt; ... } — the @Composable CONTENT shown while that key is on</span>
+        <span class="c">//                      top. The lambda is handed the key instance, so a</span>
+        <span class="c">//                      data-class key can read its arguments (e.g. key.itemId).</span>
+        <span class="c">//                      A data-OBJECT key carries no data, so its block can</span>
+        <span class="c">//                      omit the `key -&gt;` parameter.</span>
         entryProvider = entryProvider {
             <span class="c">// LEVEL 1 — when CategoriesKey is on top, show the list of categories.</span>
             entry&lt;<span class="t">CategoriesKey</span>&gt; {
@@ -1118,7 +1169,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">ItemsScreen: a static header over a scrolling list</span>
-        <span class="codemeta"><code title="NavThreeScreen/src/main/java/com/example/navthreescreen/MainActivity.kt">MainActivity.kt</code> · lines 312–350</span>
+        <span class="codemeta"><code title="NavThreeScreen/src/main/java/com/example/navthreescreen/MainActivity.kt">MainActivity.kt</code> · lines 329–367</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="a">@Composable</span>
@@ -1165,7 +1216,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">Previewing every screen with @PreviewParameter</span>
-        <span class="codemeta"><code title="NavThreeScreen/src/main/java/com/example/navthreescreen/MainActivity.kt">MainActivity.kt</code> · lines 447–461</span>
+        <span class="codemeta"><code title="NavThreeScreen/src/main/java/com/example/navthreescreen/MainActivity.kt">MainActivity.kt</code> · lines 464–478</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="k">class</span> <span class="t">ItemPreviewProvider</span> : <span class="t">PreviewParameterProvider</span>&lt;<span class="t">Item</span>&gt; {
@@ -1304,7 +1355,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">Mapping every key to its screen with entryProvider</span>
-        <span class="codemeta"><code title="NavFourScreen/src/main/java/com/example/navfourscreen/MainActivity.kt">MainActivity.kt</code> · lines 244–288</span>
+        <span class="codemeta"><code title="NavFourScreen/src/main/java/com/example/navfourscreen/MainActivity.kt">MainActivity.kt</code> · lines 259–303</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>        entryProvider = entryProvider {
@@ -1357,7 +1408,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">Detail screen with a forward button to screen four</span>
-        <span class="codemeta"><code title="NavFourScreen/src/main/java/com/example/navfourscreen/MainActivity.kt">MainActivity.kt</code> · lines 394–423</span>
+        <span class="codemeta"><code title="NavFourScreen/src/main/java/com/example/navfourscreen/MainActivity.kt">MainActivity.kt</code> · lines 409–438</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="k">fun</span> <span class="t">DetailScreen</span>(
@@ -1395,7 +1446,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">The new Fact screen and Start over</span>
-        <span class="codemeta"><code title="NavFourScreen/src/main/java/com/example/navfourscreen/MainActivity.kt">MainActivity.kt</code> · lines 435–461</span>
+        <span class="codemeta"><code title="NavFourScreen/src/main/java/com/example/navfourscreen/MainActivity.kt">MainActivity.kt</code> · lines 450–476</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="k">fun</span> <span class="t">FactScreen</span>(
@@ -1782,20 +1833,37 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">Single NavDisplay with per-tab Back</span>
-        <span class="codemeta"><code title="NavBottomTabs/src/main/java/com/example/navbottomtabs/MainActivity.kt">MainActivity.kt</code> · lines 371–375</span>
+        <span class="codemeta"><code title="NavBottomTabs/src/main/java/com/example/navbottomtabs/MainActivity.kt">MainActivity.kt</code> · lines 371–392</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>        <span class="t">NavDisplay</span>(
             backStack = activeBackStack,                   <span class="c">// &lt;-- the per-tab stack, swapped by selectedTab</span>
             modifier = <span class="t">Modifier</span>.padding(innerPadding),     <span class="c">// keep content clear of the bottom bar + system bars</span>
             onBack = { activeBackStack.removeLastOrNull() }, <span class="c">// back = pop THIS tab's top key (never another tab's)</span>
+            <span class="c">// entryProvider is a DSL (a small "language" for one job): it builds the</span>
+            <span class="c">// map of "which key type -&gt; which screen". You call entry&lt;...&gt; once per</span>
+            <span class="c">// screen inside the { } block, and Nav3 runs the block whose key type</span>
+            <span class="c">// matches the key currently on top of the back stack.</span>
+            <span class="c">//</span>
+            <span class="c">// How to read one  entry&lt;KeyType&gt; { key -&gt; SomeScreen(...) }  line:</span>
+            <span class="c">//   • entry          — a Nav3 builder function (from</span>
+            <span class="c">//                      androidx.navigation3.runtime) that registers ONE</span>
+            <span class="c">//                      screen for ONE key type.</span>
+            <span class="c">//   • &lt;KeyType&gt;      — a GENERIC TYPE ARGUMENT, in angle brackets (a TYPE</span>
+            <span class="c">//                      slot, not a value in parentheses): the key type this</span>
+            <span class="c">//                      block handles. Nav3 matches it against the top key.</span>
+            <span class="c">//   • { key -&gt; ... } — the @Composable CONTENT shown while that key is on</span>
+            <span class="c">//                      top. The lambda is handed the key instance, so a</span>
+            <span class="c">//                      data-class key can read its arguments (e.g. key.itemId).</span>
+            <span class="c">//                      A data-OBJECT key carries no data, so its block can</span>
+            <span class="c">//                      omit the `key -&gt;` parameter.</span>
             entryProvider = entryProvider {</code></pre>
       <p class="codeexplain">One 'NavDisplay' renders 'backStack = activeBackStack'. When 'selectedTab' changes, activeBackStack re-resolves and NavDisplay instantly swaps to wherever that tab was last left. 'onBack' pops only that tab's stack via 'activeBackStack.removeLastOrNull()', so System Back walks the current tab's history and never crosses into another tab.</p>
     </figure>
     <figure class="code">
       <figcaption>
         <span class="codetitle">entryProvider: shared leaf pushed onto different stacks</span>
-        <span class="codemeta"><code title="NavBottomTabs/src/main/java/com/example/navbottomtabs/MainActivity.kt">MainActivity.kt</code> · lines 380–410</span>
+        <span class="codemeta"><code title="NavBottomTabs/src/main/java/com/example/navbottomtabs/MainActivity.kt">MainActivity.kt</code> · lines 397–427</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>                entry&lt;<span class="t">CategoriesKey</span>&gt; {
@@ -1951,7 +2019,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">NavDisplay with a flat onBack and a grouped entryProvider</span>
-        <span class="codemeta"><code title="NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt">MainActivity.kt</code> · lines 335–349</span>
+        <span class="codemeta"><code title="NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt">MainActivity.kt</code> · lines 335–366</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>    <span class="t">NavDisplay</span>(
@@ -1968,13 +2036,30 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
         <span class="c">// Nav3 picks the block whose key type matches the current top key. We</span>
         <span class="c">// organize the blocks into TWO labelled sections — one per nested graph —</span>
         <span class="c">// which is how the grouping models "two graphs sharing one flat stack".</span>
+        <span class="c">// entryProvider is a DSL (a small "language" for one job): it builds the</span>
+        <span class="c">// map of "which key type -&gt; which screen". You call entry&lt;...&gt; once per</span>
+        <span class="c">// screen inside the { } block, and Nav3 runs the block whose key type</span>
+        <span class="c">// matches the key currently on top of the back stack.</span>
+        <span class="c">//</span>
+        <span class="c">// How to read one  entry&lt;KeyType&gt; { key -&gt; SomeScreen(...) }  line:</span>
+        <span class="c">//   • entry          — a Nav3 builder function (from</span>
+        <span class="c">//                      androidx.navigation3.runtime) that registers ONE</span>
+        <span class="c">//                      screen for ONE key type.</span>
+        <span class="c">//   • &lt;KeyType&gt;      — a GENERIC TYPE ARGUMENT, in angle brackets (a TYPE</span>
+        <span class="c">//                      slot, not a value in parentheses): the key type this</span>
+        <span class="c">//                      block handles. Nav3 matches it against the top key.</span>
+        <span class="c">//   • { key -&gt; ... } — the @Composable CONTENT shown while that key is on</span>
+        <span class="c">//                      top. The lambda is handed the key instance, so a</span>
+        <span class="c">//                      data-class key can read its arguments (e.g. key.itemId).</span>
+        <span class="c">//                      A data-OBJECT key carries no data, so its block can</span>
+        <span class="c">//                      omit the `key -&gt;` parameter.</span>
         entryProvider = entryProvider {</code></pre>
       <p class="codeexplain">NavDisplay renders whatever key is on top of backStack. 'onBack = { backStack.removeLastOrNull() }' is a single flat pop that serves BOTH graphs' internal Back, and removeLastOrNull is a safe no-op on an empty stack. The entryProvider DSL that follows is split into two labelled sections so that two graphs sharing one flat stack stays visible in the code.</p>
     </figure>
     <figure class="code">
       <figcaption>
         <span class="codetitle">Graph A entries: 'Get started' wires to finishOnboarding</span>
-        <span class="codemeta"><code title="NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt">MainActivity.kt</code> · lines 360–385</span>
+        <span class="codemeta"><code title="NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt">MainActivity.kt</code> · lines 377–402</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>            entry&lt;<span class="t">WelcomeKey</span>&gt; {
@@ -2008,7 +2093,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">Graph B entries: id-carrying keys resolved to objects</span>
-        <span class="codemeta"><code title="NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt">MainActivity.kt</code> · lines 396–423</span>
+        <span class="codemeta"><code title="NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt">MainActivity.kt</code> · lines 413–440</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>            entry&lt;<span class="t">CategoriesKey</span>&gt; {
@@ -2141,7 +2226,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">NavDisplay + entryProvider wire keys to screens and pass the shared VM down</span>
-        <span class="codemeta"><code title="NavViewModelState/src/main/java/com/example/navviewmodelstate/MainActivity.kt">MainActivity.kt</code> · lines 255–299</span>
+        <span class="codemeta"><code title="NavViewModelState/src/main/java/com/example/navviewmodelstate/MainActivity.kt">MainActivity.kt</code> · lines 255–316</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>    <span class="t">NavDisplay</span>(
@@ -2153,6 +2238,23 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
         onBack = { backStack.removeLastOrNull() },          <span class="c">// back = pop the top key</span>
         <span class="c">// entryProvider is a DSL: one `entry&lt;KeyType&gt; { ... }` block per screen.</span>
         <span class="c">// Nav3 picks the block whose key type matches the current top key.</span>
+        <span class="c">// entryProvider is a DSL (a small "language" for one job): it builds the</span>
+        <span class="c">// map of "which key type -&gt; which screen". You call entry&lt;...&gt; once per</span>
+        <span class="c">// screen inside the { } block, and Nav3 runs the block whose key type</span>
+        <span class="c">// matches the key currently on top of the back stack.</span>
+        <span class="c">//</span>
+        <span class="c">// How to read one  entry&lt;KeyType&gt; { key -&gt; SomeScreen(...) }  line:</span>
+        <span class="c">//   • entry          — a Nav3 builder function (from</span>
+        <span class="c">//                      androidx.navigation3.runtime) that registers ONE</span>
+        <span class="c">//                      screen for ONE key type.</span>
+        <span class="c">//   • &lt;KeyType&gt;      — a GENERIC TYPE ARGUMENT, in angle brackets (a TYPE</span>
+        <span class="c">//                      slot, not a value in parentheses): the key type this</span>
+        <span class="c">//                      block handles. Nav3 matches it against the top key.</span>
+        <span class="c">//   • { key -&gt; ... } — the @Composable CONTENT shown while that key is on</span>
+        <span class="c">//                      top. The lambda is handed the key instance, so a</span>
+        <span class="c">//                      data-class key can read its arguments (e.g. key.itemId).</span>
+        <span class="c">//                      A data-OBJECT key carries no data, so its block can</span>
+        <span class="c">//                      omit the `key -&gt;` parameter.</span>
         entryProvider = entryProvider {
             <span class="c">// LEVEL 1 — when CategoriesKey is on top, show the list of categories.</span>
             entry&lt;<span class="t">CategoriesKey</span>&gt; {
@@ -2194,7 +2296,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">Route observes the StateFlow lifecycle-aware and derives a boolean</span>
-        <span class="codemeta"><code title="NavViewModelState/src/main/java/com/example/navviewmodelstate/MainActivity.kt">MainActivity.kt</code> · lines 350–372</span>
+        <span class="codemeta"><code title="NavViewModelState/src/main/java/com/example/navviewmodelstate/MainActivity.kt">MainActivity.kt</code> · lines 367–389</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="a">@Composable</span>
@@ -2225,7 +2327,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">rememberSaveable counter contrasts local state with the ViewModel</span>
-        <span class="codemeta"><code title="NavViewModelState/src/main/java/com/example/navviewmodelstate/MainActivity.kt">MainActivity.kt</code> · lines 519–539</span>
+        <span class="codemeta"><code title="NavViewModelState/src/main/java/com/example/navviewmodelstate/MainActivity.kt">MainActivity.kt</code> · lines 536–556</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>    <span class="k">var</span> count <span class="k">by</span> rememberSaveable { mutableStateOf(<span class="n">0</span>) }     <span class="c">// survives rotation; resets on a fresh launch</span>
@@ -2363,7 +2465,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">Wiring the three specs into NavDisplay</span>
-        <span class="codemeta"><code title="NavTransitions/src/main/java/com/example/navtransitions/MainActivity.kt">MainActivity.kt</code> · lines 394–407</span>
+        <span class="codemeta"><code title="NavTransitions/src/main/java/com/example/navtransitions/MainActivity.kt">MainActivity.kt</code> · lines 394–424</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>    <span class="t">NavDisplay</span>(
@@ -2379,13 +2481,30 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
         predictivePopTransitionSpec = predictivePopSpec(),  <span class="c">// PREDICTIVE BACK: gentle scale + fade</span>
         <span class="c">// entryProvider is a DSL: one `entry&lt;KeyType&gt; { ... }` block per screen.</span>
         <span class="c">// Nav3 picks the block whose key type matches the current top key.</span>
+        <span class="c">// entryProvider is a DSL (a small "language" for one job): it builds the</span>
+        <span class="c">// map of "which key type -&gt; which screen". You call entry&lt;...&gt; once per</span>
+        <span class="c">// screen inside the { } block, and Nav3 runs the block whose key type</span>
+        <span class="c">// matches the key currently on top of the back stack.</span>
+        <span class="c">//</span>
+        <span class="c">// How to read one  entry&lt;KeyType&gt; { key -&gt; SomeScreen(...) }  line:</span>
+        <span class="c">//   • entry          — a Nav3 builder function (from</span>
+        <span class="c">//                      androidx.navigation3.runtime) that registers ONE</span>
+        <span class="c">//                      screen for ONE key type.</span>
+        <span class="c">//   • &lt;KeyType&gt;      — a GENERIC TYPE ARGUMENT, in angle brackets (a TYPE</span>
+        <span class="c">//                      slot, not a value in parentheses): the key type this</span>
+        <span class="c">//                      block handles. Nav3 matches it against the top key.</span>
+        <span class="c">//   • { key -&gt; ... } — the @Composable CONTENT shown while that key is on</span>
+        <span class="c">//                      top. The lambda is handed the key instance, so a</span>
+        <span class="c">//                      data-class key can read its arguments (e.g. key.itemId).</span>
+        <span class="c">//                      A data-OBJECT key carries no data, so its block can</span>
+        <span class="c">//                      omit the `key -&gt;` parameter.</span>
         entryProvider = entryProvider {</code></pre>
       <p class="codeexplain">This is the call site that makes the sample work: NavDisplay takes backStack, an onBack that pops, and the three params transitionSpec = forwardSpec(), popTransitionSpec = popSpec(), predictivePopTransitionSpec = predictivePopSpec(). NavDisplay decides forward-vs-pop by diffing the back stack and then invokes the matching spec. Without these three lines you would get NavDisplay's plain default cross-fade.</p>
     </figure>
     <figure class="code">
       <figcaption>
         <span class="codetitle">Per-entry override: the Fact screen slides vertically via metadata</span>
-        <span class="codemeta"><code title="NavTransitions/src/main/java/com/example/navtransitions/MainActivity.kt">MainActivity.kt</code> · lines 453–472</span>
+        <span class="codemeta"><code title="NavTransitions/src/main/java/com/example/navtransitions/MainActivity.kt">MainActivity.kt</code> · lines 470–489</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>            entry&lt;<span class="t">FactKey</span>&gt;(
@@ -2576,7 +2695,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">Observing state the lifecycle-aware way</span>
-        <span class="codemeta"><code title="NavDataLayer/src/main/java/com/example/navdatalayer/MainActivity.kt">MainActivity.kt</code> · lines 214–233</span>
+        <span class="codemeta"><code title="NavDataLayer/src/main/java/com/example/navdatalayer/MainActivity.kt">MainActivity.kt</code> · lines 231–250</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="a">@Composable</span>
@@ -2604,7 +2723,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">Exhaustive state rendering and row taps</span>
-        <span class="codemeta"><code title="NavDataLayer/src/main/java/com/example/navdatalayer/MainActivity.kt">MainActivity.kt</code> · lines 262–305</span>
+        <span class="codemeta"><code title="NavDataLayer/src/main/java/com/example/navdatalayer/MainActivity.kt">MainActivity.kt</code> · lines 279–322</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>        <span class="k">when</span> (uiState) {

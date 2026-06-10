@@ -67,6 +67,23 @@ fun AppNavigation(modifier: Modifier = Modifier) {        // Accepts a Modifier 
         backStack = backStack,                            // The list of keys it observes.
         modifier = modifier,                              // Apply the padding/layout passed down from MainActivity.
         onBack = { backStack.removeLastOrNull() },        // System/predictive back: pop the top key to go back one screen.
+        // entryProvider is a DSL (a small "language" for one job): it builds the
+        // map of "which key type -> which screen". You call entry<...> once per
+        // screen inside the { } block, and Nav3 runs the block whose key type
+        // matches the key currently on top of the back stack.
+        //
+        // How to read one  entry<KeyType> { key -> SomeScreen(...) }  line:
+        //   • entry          — a Nav3 builder function (from
+        //                      androidx.navigation3.runtime) that registers ONE
+        //                      screen for ONE key type.
+        //   • <KeyType>      — a GENERIC TYPE ARGUMENT, in angle brackets (a TYPE
+        //                      slot, not a value in parentheses): the key type this
+        //                      block handles. Nav3 matches it against the top key.
+        //   • { key -> ... } — the @Composable CONTENT shown while that key is on
+        //                      top. The lambda is handed the key instance, so a
+        //                      data-class key can read its arguments (e.g. key.itemId).
+        //                      A data-OBJECT key carries no data, so its block can
+        //                      omit the `key ->` parameter.
         entryProvider = entryProvider {                   // Begin the map of key type -> screen UI.
             entry<HomeKey> {                              // If the top key is a HomeKey, show this:
                 HomeScreen(                               // Draw the Home screen.
