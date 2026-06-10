@@ -76,14 +76,14 @@
       "title": "The ViewModel owns state as a read-only StateFlow",
       "file": "NavViewModelState/src/main/java/com/example/navviewmodelstate/FavoritesViewModel.kt",
       "start": 114,
-      "end": 124,
+      "end": 138,
       "explain": "'_favorites' is a private MutableStateFlow seeded with 'emptySet()', the only thing allowed to be written. The public 'favorites' exposes it via 'asStateFlow()' as a read-only StateFlow, so the UI can collect it but cannot mutate it. This encapsulation is the whole point: the ViewModel stays the single source of truth and the UI must go through 'toggleFavorite'."
     },
     {
       "title": "toggleFavorite: the one event that mutates state, immutably",
       "file": "NavViewModelState/src/main/java/com/example/navviewmodelstate/FavoritesViewModel.kt",
-      "start": 138,
-      "end": 142,
+      "start": 152,
+      "end": 156,
       "explain": "'update { current -> if (id in current) current - id else current + id }' atomically reads the current set and stores the next one, adding the id if absent or removing it if present. Producing a brand-new Set each time keeps state immutable so Compose reliably detects the change and recomposes. This is the only place the favorites set is ever written."
     },
     {

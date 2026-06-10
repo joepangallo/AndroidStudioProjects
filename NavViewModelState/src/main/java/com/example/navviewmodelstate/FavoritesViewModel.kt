@@ -112,6 +112,20 @@ import kotlinx.coroutines.flow.update                        // atomically compu
  *   in-memory version here to focus on the rotation/navigation story.
  */
 class FavoritesViewModel : ViewModel() {
+    // WHAT THIS ViewModel HOLDS — AND WHAT IT DOES NOT:
+    // This VM owns exactly ONE piece of state: the set of favorited planet ids
+    // (below). It is NOT a store of "all the screens' state". It is shared across
+    // screens only because every screen obtains the SAME instance (viewModel() in
+    // MainActivity, scoped to the Activity), so they all read/write one favorites
+    // set — a ★ toggled on Detail then shows up on Items.
+    //
+    // The rest of the app's state lives elsewhere, on purpose:
+    //   • which screen you are on / the back stack -> rememberNavBackStack(...) in MainActivity
+    //   • which category or item a screen shows     -> the nav KEY (ItemsKey.categoryId, DetailKey.itemId)
+    //   • the planet / category data                -> the static sampleItems / sampleCategories lists
+    //   • transient UI bits (scroll, text fields)   -> remember / rememberSaveable in the composable
+    // Centralize in a ViewModel only the state screens must AGREE on and that must
+    // survive rotation/navigation — here, just the favorites.
 
     // PRIVATE, MUTABLE source of truth. Seeded with an empty set (no favorites).
     // A MutableStateFlow ALWAYS holds a current value and emits a new one to every

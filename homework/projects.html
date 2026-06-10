@@ -2284,10 +2284,24 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">The ViewModel owns state as a read-only StateFlow</span>
-        <span class="codemeta"><code title="NavViewModelState/src/main/java/com/example/navviewmodelstate/FavoritesViewModel.kt">FavoritesViewModel.kt</code> · lines 114–124</span>
+        <span class="codemeta"><code title="NavViewModelState/src/main/java/com/example/navviewmodelstate/FavoritesViewModel.kt">FavoritesViewModel.kt</code> · lines 114–138</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="k">class</span> <span class="t">FavoritesViewModel</span> : <span class="t">ViewModel</span>() {
+    <span class="c">// WHAT THIS ViewModel HOLDS — AND WHAT IT DOES NOT:</span>
+    <span class="c">// This VM owns exactly ONE piece of state: the set of favorited planet ids</span>
+    <span class="c">// (below). It is NOT a store of "all the screens' state". It is shared across</span>
+    <span class="c">// screens only because every screen obtains the SAME instance (viewModel() in</span>
+    <span class="c">// MainActivity, scoped to the Activity), so they all read/write one favorites</span>
+    <span class="c">// set — a ★ toggled on Detail then shows up on Items.</span>
+    <span class="c">//</span>
+    <span class="c">// The rest of the app's state lives elsewhere, on purpose:</span>
+    <span class="c">//   • which screen you are on / the back stack -&gt; rememberNavBackStack(...) in MainActivity</span>
+    <span class="c">//   • which category or item a screen shows     -&gt; the nav KEY (ItemsKey.categoryId, DetailKey.itemId)</span>
+    <span class="c">//   • the planet / category data                -&gt; the static sampleItems / sampleCategories lists</span>
+    <span class="c">//   • transient UI bits (scroll, text fields)   -&gt; remember / rememberSaveable in the composable</span>
+    <span class="c">// Centralize in a ViewModel only the state screens must AGREE on and that must</span>
+    <span class="c">// survive rotation/navigation — here, just the favorites.</span>
 
     <span class="c">// PRIVATE, MUTABLE source of truth. Seeded with an empty set (no favorites).</span>
     <span class="c">// A MutableStateFlow ALWAYS holds a current value and emits a new one to every</span>
@@ -2303,7 +2317,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">toggleFavorite: the one event that mutates state, immutably</span>
-        <span class="codemeta"><code title="NavViewModelState/src/main/java/com/example/navviewmodelstate/FavoritesViewModel.kt">FavoritesViewModel.kt</code> · lines 138–142</span>
+        <span class="codemeta"><code title="NavViewModelState/src/main/java/com/example/navviewmodelstate/FavoritesViewModel.kt">FavoritesViewModel.kt</code> · lines 152–156</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>    <span class="k">fun</span> toggleFavorite(id: <span class="t">Int</span>) {
