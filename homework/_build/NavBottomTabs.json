@@ -111,7 +111,7 @@
       "title": "entryProvider: shared leaf pushed onto different stacks",
       "file": "NavBottomTabs/src/main/java/com/example/navbottomtabs/MainActivity.kt",
       "start": 407,
-      "end": 437,
+      "end": 442,
       "explain": "The 'entryProvider' DSL maps each key type to a screen. Notice the same 'DetailKey' is added by 'planetsBackStack.add(DetailKey(itemId))' inside the Planets entries and by 'searchBackStack.add(DetailKey(itemId))' inside the Search entry. One key type, two stacks - which is why the two tabs keep completely separate Detail histories even though they reuse one screen and one key."
     }
   ],

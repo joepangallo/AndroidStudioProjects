@@ -560,12 +560,17 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">entryProvider maps each key type to a screen</span>
-        <span class="codemeta"><code title="Intent/app/src/main/java/com/example/intent/MainActivity.kt">MainActivity.kt</code> · lines 97–109</span>
+        <span class="codemeta"><code title="Intent/app/src/main/java/com/example/intent/MainActivity.kt">MainActivity.kt</code> · lines 97–114</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>        entryProvider = entryProvider {                   <span class="c">// Begin the map of key type -&gt; screen UI.</span>
             entry&lt;<span class="t">HomeKey</span>&gt; {                              <span class="c">// If the top key is a HomeKey, show this:</span>
                 <span class="t">HomeScreen</span>(                               <span class="c">// Draw the Home screen.</span>
+                    <span class="c">// THE JUMP — how a tap reaches the next screen: this line does NOT name a</span>
+                    <span class="c">// screen, it just ADDS A KEY to the back stack. NavDisplay then matches that</span>
+                    <span class="c">// key by its TYPE to the matching entry&lt;...&gt; { } block above and runs it; the</span>
+                    <span class="c">// id inside the key only chooses WHICH data that screen shows, not WHICH screen</span>
+                    <span class="c">// — so every key of this type lands on the same entry block.</span>
                     onOpenDetail = { backStack.add(<span class="t">DetailKey</span>(<span class="s">"Hello from Home!"</span>)) }  <span class="c">// Push a DetailKey (with its message) = navigate forward.</span>
                 )                                         <span class="c">// End HomeScreen call.</span>
             }                                             <span class="c">// End HomeKey entry.</span>
@@ -581,7 +586,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">HomeScreen is a plain Composable with a callback</span>
-        <span class="codemeta"><code title="Intent/app/src/main/java/com/example/intent/MainActivity.kt">MainActivity.kt</code> · lines 115–123</span>
+        <span class="codemeta"><code title="Intent/app/src/main/java/com/example/intent/MainActivity.kt">MainActivity.kt</code> · lines 120–128</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="a">@Composable</span>                                               <span class="c">// Compose UI function.</span>
@@ -598,7 +603,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">DetailScreen renders the key's argument</span>
-        <span class="codemeta"><code title="Intent/app/src/main/java/com/example/intent/MainActivity.kt">MainActivity.kt</code> · lines 126–134</span>
+        <span class="codemeta"><code title="Intent/app/src/main/java/com/example/intent/MainActivity.kt">MainActivity.kt</code> · lines 131–139</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="a">@Composable</span>                                               <span class="c">// Compose UI function.</span>
@@ -695,7 +700,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">The back stack and NavDisplay wiring</span>
-        <span class="codemeta"><code title="NavDetailList/app/src/main/java/com/example/navdetaillist/MainActivity.kt">MainActivity.kt</code> · lines 87–139</span>
+        <span class="codemeta"><code title="NavDetailList/app/src/main/java/com/example/navdetaillist/MainActivity.kt">MainActivity.kt</code> · lines 87–144</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="k">fun</span> <span class="t">AppNavigation</span>(modifier: <span class="t">Modifier</span> = <span class="t">Modifier</span>) {
@@ -738,6 +743,11 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
                 <span class="t">ListScreen</span>(
                     items = sampleItems,
                     <span class="c">// Tapping a row pushes a DetailKey carrying THAT item's id = navigate forward.</span>
+                    <span class="c">// THE JUMP — how a tap reaches the next screen: this line does NOT name a</span>
+                    <span class="c">// screen, it just ADDS A KEY to the back stack. NavDisplay then matches that</span>
+                    <span class="c">// key by its TYPE to the matching entry&lt;...&gt; { } block above and runs it; the</span>
+                    <span class="c">// id inside the key only chooses WHICH data that screen shows, not WHICH screen</span>
+                    <span class="c">// — so every key of this type lands on the same entry block.</span>
                     onOpen = { id -&gt; backStack.add(<span class="t">DetailKey</span>(id)) }
                 )
             }
@@ -756,7 +766,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">A tappable list that triggers navigation</span>
-        <span class="codemeta"><code title="NavDetailList/app/src/main/java/com/example/navdetaillist/MainActivity.kt">MainActivity.kt</code> · lines 142–162</span>
+        <span class="codemeta"><code title="NavDetailList/app/src/main/java/com/example/navdetaillist/MainActivity.kt">MainActivity.kt</code> · lines 147–167</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="a">@Composable</span>
@@ -785,7 +795,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">The detail screen with a back action</span>
-        <span class="codemeta"><code title="NavDetailList/app/src/main/java/com/example/navdetaillist/MainActivity.kt">MainActivity.kt</code> · lines 165–180</span>
+        <span class="codemeta"><code title="NavDetailList/app/src/main/java/com/example/navdetaillist/MainActivity.kt">MainActivity.kt</code> · lines 170–185</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="a">@Composable</span>
@@ -916,7 +926,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">NavDisplay, onBack, and the entryProvider</span>
-        <span class="codemeta"><code title="NavListDetail/app/src/main/java/com/example/navlistdetail/MainActivity.kt">MainActivity.kt</code> · lines 176–234</span>
+        <span class="codemeta"><code title="NavListDetail/app/src/main/java/com/example/navlistdetail/MainActivity.kt">MainActivity.kt</code> · lines 176–239</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>    <span class="t">NavDisplay</span>(
@@ -962,6 +972,11 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
                     items = sampleItems,
                     <span class="c">// Tapping a row pushes a DetailKey carrying THAT item's id,</span>
                     <span class="c">// which navigates forward to its detail screen.</span>
+                    <span class="c">// THE JUMP — how a tap reaches the next screen: this line does NOT name a</span>
+                    <span class="c">// screen, it just ADDS A KEY to the back stack. NavDisplay then matches that</span>
+                    <span class="c">// key by its TYPE to the matching entry&lt;...&gt; { } block above and runs it; the</span>
+                    <span class="c">// id inside the key only chooses WHICH data that screen shows, not WHICH screen</span>
+                    <span class="c">// — so every key of this type lands on the same entry block.</span>
                     onOpen = { id -&gt; backStack.add(<span class="t">DetailKey</span>(id)) }
                 )
             }
@@ -983,7 +998,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">The stateless list screen</span>
-        <span class="codemeta"><code title="NavListDetail/app/src/main/java/com/example/navlistdetail/MainActivity.kt">MainActivity.kt</code> · lines 248–275</span>
+        <span class="codemeta"><code title="NavListDetail/app/src/main/java/com/example/navlistdetail/MainActivity.kt">MainActivity.kt</code> · lines 253–280</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="a">@Composable</span>
@@ -1120,7 +1135,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">NavDisplay + entryProvider: the heart of Nav3</span>
-        <span class="codemeta"><code title="NavThreeScreen/src/main/java/com/example/navthreescreen/MainActivity.kt">MainActivity.kt</code> · lines 215–285</span>
+        <span class="codemeta"><code title="NavThreeScreen/src/main/java/com/example/navthreescreen/MainActivity.kt">MainActivity.kt</code> · lines 215–290</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>    <span class="t">NavDisplay</span>(
@@ -1166,6 +1181,11 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
                     categories = sampleCategories,
                     <span class="c">// Tapping a category pushes an ItemsKey carrying THAT category's</span>
                     <span class="c">// id, navigating forward to its list of planets.</span>
+                    <span class="c">// THE JUMP — how a tap reaches the next screen: this line does NOT name a</span>
+                    <span class="c">// screen, it just ADDS A KEY to the back stack. NavDisplay then matches that</span>
+                    <span class="c">// key by its TYPE to the matching entry&lt;...&gt; { } block above and runs it; the</span>
+                    <span class="c">// id inside the key only chooses WHICH data that screen shows, not WHICH screen</span>
+                    <span class="c">// — so every key of this type lands on the same entry block.</span>
                     onOpen = { categoryId -&gt; backStack.add(<span class="t">ItemsKey</span>(categoryId)) }
                 )
             }
@@ -1199,7 +1219,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">ItemsScreen: a static header over a scrolling list</span>
-        <span class="codemeta"><code title="NavThreeScreen/src/main/java/com/example/navthreescreen/MainActivity.kt">MainActivity.kt</code> · lines 339–377</span>
+        <span class="codemeta"><code title="NavThreeScreen/src/main/java/com/example/navthreescreen/MainActivity.kt">MainActivity.kt</code> · lines 344–382</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="a">@Composable</span>
@@ -1246,7 +1266,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">Previewing every screen with @PreviewParameter</span>
-        <span class="codemeta"><code title="NavThreeScreen/src/main/java/com/example/navthreescreen/MainActivity.kt">MainActivity.kt</code> · lines 474–488</span>
+        <span class="codemeta"><code title="NavThreeScreen/src/main/java/com/example/navthreescreen/MainActivity.kt">MainActivity.kt</code> · lines 479–493</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="k">class</span> <span class="t">ItemPreviewProvider</span> : <span class="t">PreviewParameterProvider</span>&lt;<span class="t">Item</span>&gt; {
@@ -1385,7 +1405,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">Mapping every key to its screen with entryProvider</span>
-        <span class="codemeta"><code title="NavFourScreen/src/main/java/com/example/navfourscreen/MainActivity.kt">MainActivity.kt</code> · lines 269–313</span>
+        <span class="codemeta"><code title="NavFourScreen/src/main/java/com/example/navfourscreen/MainActivity.kt">MainActivity.kt</code> · lines 269–318</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>        entryProvider = entryProvider {
@@ -1395,6 +1415,11 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
                     categories = sampleCategories,
                     <span class="c">// Tapping a category pushes an ItemsKey carrying THAT category's</span>
                     <span class="c">// id, navigating forward to its list of planets.</span>
+                    <span class="c">// THE JUMP — how a tap reaches the next screen: this line does NOT name a</span>
+                    <span class="c">// screen, it just ADDS A KEY to the back stack. NavDisplay then matches that</span>
+                    <span class="c">// key by its TYPE to the matching entry&lt;...&gt; { } block above and runs it; the</span>
+                    <span class="c">// id inside the key only chooses WHICH data that screen shows, not WHICH screen</span>
+                    <span class="c">// — so every key of this type lands on the same entry block.</span>
                     onOpen = { categoryId -&gt; backStack.add(<span class="t">ItemsKey</span>(categoryId)) }
                 )
             }
@@ -1438,7 +1463,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">Detail screen with a forward button to screen four</span>
-        <span class="codemeta"><code title="NavFourScreen/src/main/java/com/example/navfourscreen/MainActivity.kt">MainActivity.kt</code> · lines 419–448</span>
+        <span class="codemeta"><code title="NavFourScreen/src/main/java/com/example/navfourscreen/MainActivity.kt">MainActivity.kt</code> · lines 424–453</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="k">fun</span> <span class="t">DetailScreen</span>(
@@ -1476,7 +1501,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">The new Fact screen and Start over</span>
-        <span class="codemeta"><code title="NavFourScreen/src/main/java/com/example/navfourscreen/MainActivity.kt">MainActivity.kt</code> · lines 460–486</span>
+        <span class="codemeta"><code title="NavFourScreen/src/main/java/com/example/navfourscreen/MainActivity.kt">MainActivity.kt</code> · lines 465–491</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="k">fun</span> <span class="t">FactScreen</span>(
@@ -1903,13 +1928,18 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">entryProvider: shared leaf pushed onto different stacks</span>
-        <span class="codemeta"><code title="NavBottomTabs/src/main/java/com/example/navbottomtabs/MainActivity.kt">MainActivity.kt</code> · lines 407–437</span>
+        <span class="codemeta"><code title="NavBottomTabs/src/main/java/com/example/navbottomtabs/MainActivity.kt">MainActivity.kt</code> · lines 407–442</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>                entry&lt;<span class="t">CategoriesKey</span>&gt; {
                     <span class="t">CategoriesScreen</span>(
                         categories = sampleCategories,
                         <span class="c">// Drill forward within the Planets stack.</span>
+                        <span class="c">// THE JUMP — how a tap reaches the next screen: this line does NOT name a</span>
+                        <span class="c">// screen, it just ADDS A KEY to the back stack. NavDisplay then matches that</span>
+                        <span class="c">// key by its TYPE to the matching entry&lt;...&gt; { } block above and runs it; the</span>
+                        <span class="c">// id inside the key only chooses WHICH data that screen shows, not WHICH screen</span>
+                        <span class="c">// — so every key of this type lands on the same entry block.</span>
                         onOpen = { categoryId -&gt; planetsBackStack.add(<span class="t">ItemsKey</span>(categoryId)) }
                     )
                 }
@@ -2143,7 +2173,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">Graph B entries: id-carrying keys resolved to objects</span>
-        <span class="codemeta"><code title="NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt">MainActivity.kt</code> · lines 423–450</span>
+        <span class="codemeta"><code title="NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt">MainActivity.kt</code> · lines 423–455</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>            entry&lt;<span class="t">CategoriesKey</span>&gt; {
@@ -2151,6 +2181,11 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
                     categories = sampleCategories,
                     <span class="c">// Tapping a category pushes an ItemsKey carrying THAT category's</span>
                     <span class="c">// id, navigating forward to its list of planets.</span>
+                    <span class="c">// THE JUMP — how a tap reaches the next screen: this line does NOT name a</span>
+                    <span class="c">// screen, it just ADDS A KEY to the back stack. NavDisplay then matches that</span>
+                    <span class="c">// key by its TYPE to the matching entry&lt;...&gt; { } block above and runs it; the</span>
+                    <span class="c">// id inside the key only chooses WHICH data that screen shows, not WHICH screen</span>
+                    <span class="c">// — so every key of this type lands on the same entry block.</span>
                     onOpen = { categoryId -&gt; backStack.add(<span class="t">ItemsKey</span>(categoryId)) }
                 )
             }
@@ -2276,7 +2311,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">NavDisplay + entryProvider wire keys to screens and pass the shared VM down</span>
-        <span class="codemeta"><code title="NavViewModelState/src/main/java/com/example/navviewmodelstate/MainActivity.kt">MainActivity.kt</code> · lines 255–326</span>
+        <span class="codemeta"><code title="NavViewModelState/src/main/java/com/example/navviewmodelstate/MainActivity.kt">MainActivity.kt</code> · lines 255–331</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>    <span class="t">NavDisplay</span>(
@@ -2322,6 +2357,11 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
                     categories = sampleCategories,
                     <span class="c">// Tapping a category pushes an ItemsKey carrying THAT category's</span>
                     <span class="c">// id, navigating forward to its list of planets.</span>
+                    <span class="c">// THE JUMP — how a tap reaches the next screen: this line does NOT name a</span>
+                    <span class="c">// screen, it just ADDS A KEY to the back stack. NavDisplay then matches that</span>
+                    <span class="c">// key by its TYPE to the matching entry&lt;...&gt; { } block above and runs it; the</span>
+                    <span class="c">// id inside the key only chooses WHICH data that screen shows, not WHICH screen</span>
+                    <span class="c">// — so every key of this type lands on the same entry block.</span>
                     onOpen = { categoryId -&gt; backStack.add(<span class="t">ItemsKey</span>(categoryId)) }
                 )
             }
@@ -2356,7 +2396,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">Route observes the StateFlow lifecycle-aware and derives a boolean</span>
-        <span class="codemeta"><code title="NavViewModelState/src/main/java/com/example/navviewmodelstate/MainActivity.kt">MainActivity.kt</code> · lines 377–399</span>
+        <span class="codemeta"><code title="NavViewModelState/src/main/java/com/example/navviewmodelstate/MainActivity.kt">MainActivity.kt</code> · lines 382–404</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="a">@Composable</span>
@@ -2387,7 +2427,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">rememberSaveable counter contrasts local state with the ViewModel</span>
-        <span class="codemeta"><code title="NavViewModelState/src/main/java/com/example/navviewmodelstate/MainActivity.kt">MainActivity.kt</code> · lines 546–566</span>
+        <span class="codemeta"><code title="NavViewModelState/src/main/java/com/example/navviewmodelstate/MainActivity.kt">MainActivity.kt</code> · lines 551–571</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>    <span class="k">var</span> count <span class="k">by</span> rememberSaveable { mutableStateOf(<span class="n">0</span>) }     <span class="c">// survives rotation; resets on a fresh launch</span>
@@ -2574,7 +2614,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">Per-entry override: the Fact screen slides vertically via metadata</span>
-        <span class="codemeta"><code title="NavTransitions/src/main/java/com/example/navtransitions/MainActivity.kt">MainActivity.kt</code> · lines 480–499</span>
+        <span class="codemeta"><code title="NavTransitions/src/main/java/com/example/navtransitions/MainActivity.kt">MainActivity.kt</code> · lines 485–504</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>            entry&lt;<span class="t">FactKey</span>&gt;(
@@ -2765,7 +2805,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">Observing state the lifecycle-aware way</span>
-        <span class="codemeta"><code title="NavDataLayer/src/main/java/com/example/navdatalayer/MainActivity.kt">MainActivity.kt</code> · lines 241–260</span>
+        <span class="codemeta"><code title="NavDataLayer/src/main/java/com/example/navdatalayer/MainActivity.kt">MainActivity.kt</code> · lines 246–265</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code><span class="a">@Composable</span>
@@ -2793,7 +2833,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <figure class="code">
       <figcaption>
         <span class="codetitle">Exhaustive state rendering and row taps</span>
-        <span class="codemeta"><code title="NavDataLayer/src/main/java/com/example/navdatalayer/MainActivity.kt">MainActivity.kt</code> · lines 289–332</span>
+        <span class="codemeta"><code title="NavDataLayer/src/main/java/com/example/navdatalayer/MainActivity.kt">MainActivity.kt</code> · lines 294–337</span>
         <button class="copy" type="button" aria-label="Copy code">Copy</button>
       </figcaption>
       <pre class="src"><code>        <span class="k">when</span> (uiState) {

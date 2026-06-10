@@ -97,6 +97,11 @@ fun AppNavigation(modifier: Modifier = Modifier) {        // Accepts a Modifier 
         entryProvider = entryProvider {                   // Begin the map of key type -> screen UI.
             entry<HomeKey> {                              // If the top key is a HomeKey, show this:
                 HomeScreen(                               // Draw the Home screen.
+                    // THE JUMP — how a tap reaches the next screen: this line does NOT name a
+                    // screen, it just ADDS A KEY to the back stack. NavDisplay then matches that
+                    // key by its TYPE to the matching entry<...> { } block above and runs it; the
+                    // id inside the key only chooses WHICH data that screen shows, not WHICH screen
+                    // — so every key of this type lands on the same entry block.
                     onOpenDetail = { backStack.add(DetailKey("Hello from Home!")) }  // Push a DetailKey (with its message) = navigate forward.
                 )                                         // End HomeScreen call.
             }                                             // End HomeKey entry.

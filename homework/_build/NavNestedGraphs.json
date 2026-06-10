@@ -111,7 +111,7 @@
       "title": "Graph B entries: id-carrying keys resolved to objects",
       "file": "NavNestedGraphs/src/main/java/com/example/navnestedgraphs/MainActivity.kt",
       "start": 423,
-      "end": 450,
+      "end": 455,
       "explain": "The drill-down pushes 'ItemsKey(categoryId)' and 'DetailKey(itemId)', then each entry block reads the id off the key ('key.categoryId', 'key.itemId') and resolves the full object via 'categoryById' / 'itemsInCategory' / 'itemById'. Passing only an id keeps every key tiny and serializable, and because Graph A was already popped, the first Back here exits the app instead of re-entering onboarding."
     }
   ],

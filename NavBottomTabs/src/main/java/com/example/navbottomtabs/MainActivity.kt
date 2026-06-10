@@ -408,6 +408,11 @@ fun BottomTabsApp(modifier: Modifier = Modifier) {
                     CategoriesScreen(
                         categories = sampleCategories,
                         // Drill forward within the Planets stack.
+                        // THE JUMP — how a tap reaches the next screen: this line does NOT name a
+                        // screen, it just ADDS A KEY to the back stack. NavDisplay then matches that
+                        // key by its TYPE to the matching entry<...> { } block above and runs it; the
+                        // id inside the key only chooses WHICH data that screen shows, not WHICH screen
+                        // — so every key of this type lands on the same entry block.
                         onOpen = { categoryId -> planetsBackStack.add(ItemsKey(categoryId)) }
                     )
                 }

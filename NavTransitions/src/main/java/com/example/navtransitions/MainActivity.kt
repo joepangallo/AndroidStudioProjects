@@ -438,6 +438,11 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                     categories = sampleCategories,
                     // Tapping a category pushes an ItemsKey carrying THAT category's
                     // id, navigating forward to its list of planets.
+                    // THE JUMP — how a tap reaches the next screen: this line does NOT name a
+                    // screen, it just ADDS A KEY to the back stack. NavDisplay then matches that
+                    // key by its TYPE to the matching entry<...> { } block above and runs it; the
+                    // id inside the key only chooses WHICH data that screen shows, not WHICH screen
+                    // — so every key of this type lands on the same entry block.
                     onOpen = { categoryId -> backStack.add(ItemsKey(categoryId)) }
                 )
             }
